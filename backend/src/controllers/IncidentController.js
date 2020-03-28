@@ -48,8 +48,6 @@ module.exports = {
             .select('ong_id')
             .first()
 
-        console.log(incident)
-
         if (incident.ong_id !== ong_id) {
             return response.status(401).json({ error: 'Operation not allowed.' })
         } 
