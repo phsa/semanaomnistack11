@@ -1,0 +1,78 @@
+import React from 'react'
+import { View, Image, Text, TouchableOpacity, Linking } from 'react-native'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { Feather } from '@expo/vector-icons'
+import * as MailComposer from 'expo-mail-composer'
+
+import styles from './styles'
+
+import logoImg from '../../assets/logo.png'
+
+export default function Detail() {
+    const navigation = useNavigation()
+    const route = useRoute()
+
+    const incident = route.incident
+    const formattedValue = Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(incident.value)
+    const message = `Olá, ${incident.name}, estou entrando em contato pois gostaria de ajudar no caso "${incident.title}" com o valor de ${formattedValue}.`
+
+    function navigateBack() {
+        navigation.goBack()
+    }
+
+    function sendEmail() {
+        MailComposer.composeAsync({
+            subject: `Heroi do caso: ${incident.title}`,
+            recipients: [incident.email],
+            body: message
+        })
+    }
+
+    function sendWhatsApp() {
+        Linking.openURL(`whatsapp://send?phone=55${incident.whatsapp}&text=${message}`)
+    }
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Image source={logoImg}/>
+                <TouchableOpacity
+                    style={styles.detailsButton}
+                    onPress={navigateBack}>
+                    <Feather name="arrow-left" size={28} color="#E02041"/>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.incident}>
+                <Text style={styles.incidentProperty}>ONG:</Text>
+                <Text style={styles.incidentValue}>{incident.name}</Text>
+
+                <Text style={styles.incidentProperty}>CASO:</Text>
+                <Text style={styles.incidentValue}>{incident.title}</Text>
+
+                <Text style={styles.incidentProperty}>VALOR:</Text>
+                <Text style={[styles.incidentValue, { marginBottom: 0 }]}>{formattedValue}</Text>
+            </View>
+
+            <View style={styles.contactBox}>
+                <Text style={styles.heroTitle}>Salve o Dia!</Text>
+                <Text style={styles.heroTitle}>Seja o heroi desse caso.</Text>
+                <Text style={styles.heroDescription}>Entre em contato</Text>
+
+                <View style={styles.actions}>
+                    <TouchableOpacity
+                        style={styles.action}
+                        onPress={sendWhatsApp}>
+                        <Text style={styles.actionText}>WhatsApp</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                        style={styles.action}
+                        onPress={sendEmail}>
+                        <Text style={styles.actionText}>E-mail</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    )
+}
